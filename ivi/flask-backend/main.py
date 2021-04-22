@@ -2,6 +2,10 @@ import time
 from flask import Flask
 from pptx import Presentation
 from pptx.util import Cm, Pt
+from pdfreader import PDFDocument
+import io
+import tesserocr
+from PIL import Image
 
 
 app = Flask(__name__)
@@ -55,4 +59,36 @@ def ppt_font():
                         pass
     return "Check Console"
 
+
+
+@app.route('/pdf')
+def pdf():
+    fd = open('/Users/bhavyameghnani/Desktop/IVI/misc/ivi.pdf', "rb")
+    doc = PDFDocument(fd)
+    page = next(doc.pages())
+    KEY = sorted(page.Resources.Font.keys())
+    print(KEY)
+    for i in range(len(KEY)):
+        font = page.Resources.Font[KEY[i]]
+        print("FONT SUBTYPE "+font.Subtype)
+        print("BASE FONT "+font.BaseFont)
+        print("FONT ENCODING "+font.Encoding)
+    
+
+    return "Check Console"
+
+@app.route('/img')
+def img():
+    with tesserocr.PyTessBaseAPI() as api:
+        image = Image.open("/Users/bhavyameghnani/Desktop/IVI/misc/ivi.png")
+        api.SetImage(image)
+        api.Recognize()  # required to get result from the next line
+        iterator = api.GetIterator()
+        print(iterator.WordFontAttributes())
+    return "Check Console"
+
 app.run(port=5000, debug=True)
+
+
+# cd flask
+# source bin/activate
