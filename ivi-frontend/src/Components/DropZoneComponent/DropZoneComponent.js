@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import Typography from '@material-ui/core/Typography';
 
 const baseStyle = {
   display: 'flex',
@@ -64,7 +65,10 @@ function DropzoneComponent(props) {
         src={file.preview}
         alt={file.name}
       /> */}
-      <div>{file.name}</div>
+      <Typography variant="h5" align="center" color="textSecondary" paragraph>
+        <i>{file.name}</i>
+      </Typography>
+       {/* <div>{file.name}</div> */}
     </div>
   ));
 
@@ -77,7 +81,7 @@ function DropzoneComponent(props) {
     <section>
       <div {...getRootProps({style})}>
         <input {...getInputProps()} />
-        <div>Drag and drop your images here.</div>
+        <div><b>Drag and drop your documents here</b></div>
       </div>
       <aside>
         {thumbs}

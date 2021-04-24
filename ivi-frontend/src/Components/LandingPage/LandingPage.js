@@ -6,10 +6,13 @@ import Typography from '@material-ui/core/Typography';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import banner from './ey.png';
 import ivirobo from './ivi-robo.gif';
 import DropzoneComponent from '../DropZoneComponent/DropZoneComponent';
+import '../../App.css';
+import TextField from '@material-ui/core/TextField';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -20,7 +23,8 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     textAlign: 'center',
     color: theme.palette.text.secondary,
-    height: '100%'
+    height: '100%',
+    backgroundImage: 'https://wallpaper.dog/large/5518945.jpg'
   },
   mainGrid: {
     marginTop: theme.spacing(3),
@@ -80,28 +84,42 @@ export default function LandingPage() {
         {/* Hero unit */}
         <div className={classes.heroContent}>
           <Container maxWidth="lg">
-            <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
-                IVI
+            <Typography component="h1" variant="h4" align="center" color="textPrimary" gutterBottom>
+                IVI - BaScheD
             </Typography>
             <Typography variant="h5" align="center" color="textSecondary" paragraph>
               <i>IVI all EY Documents</i>
             </Typography>
           </Container>
-          <Grid container spacing={3}>
-            <Grid item xs>
+        </div>
+      </main>
+      <br/><br/>
+      <Grid container spacing={3}>
+            <Grid item xs className="ivi-robo">
               <img src={ivirobo} alt="ivirobo"/>
             </Grid>
-            <Grid item xs>
-              <Paper className={classes.paper}>
-                <DropzoneComponent/>
-              </Paper>
+            <Grid item xs >
+              <Paper className="file-input">
+                <DropzoneComponent />
+              </Paper>     
+                <br/><br/>
+              <Button variant="contained" style={{backgroundColor:"#ffe600"}}>
+                Apply IVI Now
+              </Button>
+              <br/><br/> <br/><br/>
+                <TextField
+                  id="outlined-basic"
+                  style ={{width: '95%'}} 
+                  margin="dense" 
+                  autoFocus 
+                  label="SharePoint Folder Path to Document" 
+                />
+                <br/><br/>
+                <Button variant="contained" style={{backgroundColor:"#ffe600"}}>
+                  Apply IVI on SharePoint Location Now
+                </Button>
             </Grid>
           </Grid>
-          
-        </div>
-       
-
-      </main>
     </React.Fragment> 
   );
 }
