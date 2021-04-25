@@ -14,14 +14,20 @@ def hello():
     return "Welcome to IVI by Team BaScheD!"
 
 
-@app.route('/submitFiles', methods = ['GET', 'POST'])
+@app.route('/submitFile', methods = ['GET', 'POST'])
 @cross_origin(support_credentials=True)
 def submitFiles():
     if request.method == 'POST':
         file = request.files['file']
         filename = file.filename
         print(filename)
-    return "True"
+    return send_file('/Users/bhavyameghnani/Desktop/IVI/misc/ivi.pdf')
+
+
+@app.route('/returnFile', methods = ['GET'])
+@cross_origin(support_credentials=True)
+def returnFile():
+    return send_file('/Users/bhavyameghnani/Desktop/IVI/misc/ivi.pdf')
 
 
 @app.route('/signUp', methods = ['POST', 'GET'])
