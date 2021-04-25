@@ -99,13 +99,13 @@ export default function LandingPage() {
               <img src={ivirobo} alt="ivirobo"/>
             </Grid>
             <Grid item xs >
-              <Paper className="file-input">
+              <Paper>
                 <DropzoneComponent />
               </Paper>     
-                <br/><br/>
+                {/* <br/><br/>
               <Button variant="contained" style={{backgroundColor:"#ffe600"}}>
                 Apply IVI Now
-              </Button>
+              </Button> */}
               <br/><br/> <br/><br/>
                 <TextField
                   id="outlined-basic"

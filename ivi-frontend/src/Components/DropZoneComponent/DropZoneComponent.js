@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import ServiceCall from '../../Service/ServiceCall';
 
 const baseStyle = {
   display: 'flex',
@@ -77,15 +79,33 @@ function DropzoneComponent(props) {
     files.forEach(file => URL.revokeObjectURL(file.preview));
   }, [files]);
 
+  function submitFiles(){
+    console.log(files)
+    ServiceCall.submitFiles(files).then((response)=>{
+      if(response.data === "True"){
+        alert("True")
+      }
+      else{
+        alert("Error")
+      }
+    })
+  }
+
   return (
     <section>
       <div {...getRootProps({style})}>
         <input {...getInputProps()} />
         <div><b>Drag and drop your documents here</b></div>
       </div>
+      <br/>
       <aside>
         {thumbs}
       </aside>
+      <br/>
+      <Button variant="contained" style={{backgroundColor:"#ffe600"}} onClick={()=> submitFiles()}>
+        Apply IVI Now
+      </Button>
+      <br/><br/>
     </section>
   )
 }
