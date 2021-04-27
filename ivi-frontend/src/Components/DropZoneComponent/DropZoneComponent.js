@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ServiceCall from '../../Service/ServiceCall';
-import { Document, Page } from 'react-pdf';
+//import { Document, Page } from 'react-pdf';
 
 const baseStyle = {
   display: 'flex',
@@ -33,9 +33,9 @@ const rejectStyle = {
 
 function DropzoneComponent(props) {
   const [files, setFiles] = useState([]);
-  const [returnFile, setReturnFile] = useState();
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
+  // const [returnFile, setReturnFile] = useState();
+  // const [numPages, setNumPages] = useState(null);
+  // const [pageNumber, setPageNumber] = useState(1);
 
   const onDrop = useCallback(acceptedFiles => {
     setFiles(acceptedFiles.map(file => Object.assign(file, {
@@ -83,21 +83,21 @@ function DropzoneComponent(props) {
     files.forEach(file => URL.revokeObjectURL(file.preview));
   }, [files]);
 
-  function onDocumentLoadSuccess({ numPages }) {
-    setNumPages(numPages);
-  }
+  // function onDocumentLoadSuccess({ numPages }) {
+  //   setNumPages(numPages);
+  // }
 
   function submitFiles(){
-    console.log(files)
+    // console.log(files)
     ServiceCall.submitFile(files).then((response)=>{
       console.log(response.data)
-      const blob = new Blob(
-        [response.data], 
-        {type: 'application/pdf'}
-     );
-     const fileURL = URL.createObjectURL(blob)
-     setReturnFile(fileURL)
-      //console.log(URL.createObjectURL(response.data))
+    //   const blob = new Blob(
+    //     [response.data], 
+    //     {type: 'application/pdf'}
+    //  );
+    //  const fileURL = URL.createObjectURL(blob)
+    //  setReturnFile(fileURL)
+    //   //console.log(URL.createObjectURL(response.data))
       alert(response.data)
     })
   }
@@ -118,13 +118,13 @@ function DropzoneComponent(props) {
       </Button>
       <br/><br/>
 
-      {returnFile && <Document
+      {/* {returnFile && <Document
         file={returnFile}
         onLoadSuccess={onDocumentLoadSuccess}
       >
         <Page pageNumber={pageNumber} />
       </Document>}
-      <p>Page {pageNumber} of {numPages}</p>
+      <p>Page {pageNumber} of {numPages}</p> */}
 
 
     </section>
