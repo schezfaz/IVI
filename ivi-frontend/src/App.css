@@ -37,12 +37,22 @@
   }
 }
 
+
+
 .ivi-robo {
   background-color: #282c34;
   background-image: url("https://res.cloudinary.com/people-matters/image/upload/q_auto,f_auto/v1559554139/1559554137.jpg");
   background-repeat: no-repeat;
-  background-size: auto;
   color: black;
+  border-radius: 100%;
+  width: 30%;
+  height: 30%;
+  margin-left: 35%;
+}
+
+.ivirobo-gif {
+  width: 70%;
+  height: 60%;
 }
 
 .file-input {
