@@ -92,35 +92,37 @@ export default function LandingPage() {
             <Typography variant="h6" align="center" color="textSecondary" paragraph>
               <i>IVI all EY Documents</i>
             </Typography>
-            <div className="ivi-robo">
-              <img src={ivirobo} className="ivirobo-gif" alt="ivirobo"/>
-            </div>
           </Container>
         </div>
       </main>
       <br/><br/>
 
-      <Grid container spacing={2}>
-        <Grid item xs={6} className="dropZone" >
-          <Paper style={{width:"50%;"}}>
-            <DropzoneComponent />
-          </Paper>     
-        </Grid>
-        <Grid item x={6} className="sharepoint-ivi">
-          <Paper style={{height:"50%;"}}>
-            <TextField
-              id="outlined-basic"
-              style ={{width: '95%'}} 
-              margin="dense" 
-              autoFocus 
-              label="SharePoint Folder Path to Document" 
-            />
-            <Button variant="contained" style={{backgroundColor:"#ffe600"}}>
-              Apply IVI on SharePoint Location Now
-            </Button>
-            </Paper>
-        </Grid>
-      </Grid>
+      <Grid container spacing={3}>
+            <Grid item xs className="ivi-robo">
+              <img src={ivirobo} alt="ivirobo"/>
+            </Grid>
+            <Grid item xs >
+              <Paper>
+                <DropzoneComponent />
+              </Paper>     
+                {/* <br/><br/>
+              <Button variant="contained" style={{backgroundColor:"#ffe600"}}>
+                Apply IVI Now
+              </Button> */}
+              <br/><br/> <br/><br/>
+                <TextField
+                  id="outlined-basic"
+                  style ={{width: '95%'}} 
+                  margin="dense" 
+                  autoFocus 
+                  label="SharePoint Folder Path to Document" 
+                />
+                <br/><br/>
+                <Button variant="contained" style={{backgroundColor:"#ffe600"}}>
+                  Apply IVI on SharePoint Location Now
+                </Button>
+            </Grid>
+          </Grid>
     </React.Fragment> 
   );
 }
