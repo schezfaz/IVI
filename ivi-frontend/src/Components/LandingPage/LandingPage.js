@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
@@ -13,6 +13,8 @@ import ivirobo from './ivi-robo.gif';
 import DropzoneComponent from '../DropZoneComponent/DropZoneComponent';
 import '../../App.css';
 import TextField from '@material-ui/core/TextField';
+import toast from 'react-hot-toast';
+import Link from '@material-ui/core/Link';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -70,6 +72,17 @@ const useStyles = makeStyles((theme) => ({
 export default function LandingPage() {
   const classes = useStyles();
 
+  useEffect(() => {
+    notifyWelcome();
+  }, []);
+
+
+  const notifyWelcome = () => {
+    console.log("here")
+    toast.success("IVI welcomes you !");
+  };
+
+
   return (
     <React.Fragment>
       <CssBaseline />
@@ -89,9 +102,9 @@ export default function LandingPage() {
             <Typography component="h1" variant="h4" align="center" color="textPrimary" gutterBottom>
                 IVI - BaScheD
             </Typography>
-            <Typography variant="h6" align="center" color="textSecondary" paragraph>
+            {/* <Typography variant="h6" align="center" color="textSecondary" paragraph>
               <i>IVI all EY Documents</i>
-            </Typography>
+            </Typography> */}
           </Container>
         </div>
       </main>
@@ -121,7 +134,15 @@ export default function LandingPage() {
                 <Button variant="contained" style={{backgroundColor:"#ffe600"}}>
                   Apply IVI on SharePoint Location Now
                 </Button>
+                <br/><br/><br/><br/><br/><br/><br/><br/>
+                <Link href="#/myspace" variant="body2">
+                  <Button variant="contained" style={{backgroundColor:"#797878",color:'white'}}>
+                    My Space
+                  </Button>
+                </Link>
             </Grid>
+
+           
           </Grid>
     </React.Fragment> 
   );

@@ -37,8 +37,8 @@ def submitFiles():
     return outfname
 
 
-# @app.route('/applyRules', methods = ['GET', 'POST'])
-# @cross_origin(support_credentials=True)
+@app.route('/applyRules', methods = ['GET', 'POST'])
+@cross_origin(support_credentials=True)
 def applyRules():
     document = '../misc/EYResources/Input Sample.pdf'
     doc = fitz.open(document)
