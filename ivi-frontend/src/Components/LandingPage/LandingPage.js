@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
   },
   heroContent: {
     backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(8, 0, 6),
+    padding: theme.spacing(5, 0, 4),
   },
   heroButtons: {
     marginTop: theme.spacing(4),
@@ -102,9 +102,6 @@ export default function LandingPage() {
             <Typography component="h1" variant="h4" align="center" color="textPrimary" gutterBottom>
                 IVI - BaScheD
             </Typography>
-            {/* <Typography variant="h6" align="center" color="textSecondary" paragraph>
-              <i>IVI all EY Documents</i>
-            </Typography> */}
           </Container>
         </div>
       </main>

@@ -2,6 +2,7 @@ import './App.css';
 import { Route, Switch, HashRouter } from 'react-router-dom';
 import LandingPage from './Components/LandingPage/LandingPage';
 import MySpace from './Components/MySpace/MySpace';
+import AdminModule from './Components/Admin/AdminModule';
 import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
           <Switch>
             <Route exact path="/" component={LandingPage}/>
             <Route exact path="/myspace" component={MySpace}/>
+            <Route exact path="/admin" component={AdminModule}/>
           </Switch>
       </HashRouter>
 
