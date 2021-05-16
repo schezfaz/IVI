@@ -15,6 +15,10 @@ import '../../App.css';
 import TextField from '@material-ui/core/TextField';
 import toast from 'react-hot-toast';
 import Link from '@material-ui/core/Link';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -61,7 +65,16 @@ const useStyles = makeStyles((theme) => ({
   },
   search: {
     margin: theme.spacing(1),
-    width: 600,
+    width: 1000,
+  },
+  button: {
+    display: 'block',
+    marginTop: theme.spacing(2),
+    textAlign: 'center'
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 520,
   },
 
   
@@ -82,6 +95,20 @@ export default function LandingPage() {
     toast.success("IVI welcomes you !");
   };
 
+  const [brandGuideline, setBrandGuideline] = React.useState('');
+  const [open, setOpen] = React.useState(false);
+
+  const handleChange = (event) => {
+    setBrandGuideline(event.target.value);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
   return (
     <React.Fragment>
@@ -113,6 +140,30 @@ export default function LandingPage() {
             </Grid>
             <Grid item xs >
               <Paper>
+              <div>
+                <Button variant="contained" style={{backgroundColor:"#ffe600"}} onClick={handleOpen}>
+                  Select Brand Guideline
+                </Button>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-controlled-open-select-label">Brand Guideline</InputLabel>
+                  <Select
+                    labelId="demo-controlled-open-select-label"
+                    id="demo-controlled-open-select"
+                    open={open}
+                    onClose={handleClose}
+                    onOpen={handleOpen}
+                    value={brandGuideline}
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="">
+                      <em></em>
+                    </MenuItem>
+                    <MenuItem value={"risk"}>RISK</MenuItem>
+                    <MenuItem value={"audit"}>AUDIT</MenuItem>
+                    <MenuItem value={"IT"}>IT</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
                 <DropzoneComponent />
               </Paper>     
                 {/* <br/><br/>
