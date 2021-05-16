@@ -9,6 +9,7 @@ import json
 import pandas
 import Constants
 import Config
+import xlrd
 
 es = Elasticsearch(
     cloud_id=Config.CLOUD_ID,
@@ -46,6 +47,37 @@ def submitFiles():
     # return "Send Annoted PDF File"
     return outfname
 
+@app.route('/addBrandGuideline', methods = ['GET', 'POST'])
+@cross_origin(support_credentials=True)
+def addBrandGuideline():
+    if request.method == 'POST':
+        file = request.files['file']
+        filename = file.filename
+        print(filename)
+        file.save('./guidelines/'+filename)
+        # Call Apply Rules Func
+        outfname = extractRules(filename)
+    # return "Send Annoted PDF File"
+    return outfname
+
+def extractRules(document):
+    wb = xlrd.open_workbook(document)
+    sheet = wb.sheet_by_index(0)
+    rules = {}
+    rowCount = sheet.nrows
+    for i in range(1,rowCount):
+        element = sheet.cell_value(i,0)
+        element_rule = sheet.cell_value(i,1)
+        parameterRules = {}
+        for rule in element_rule.split("\n"):
+            parameter = rule.split(":")[0].strip()
+            value = rule.split(":")[1].strip()
+            parameterRules[parameter] = value
+        rules[element] = parameterRules
+
+    #store rules in EL
+
+    return rules
 
 @app.route('/applyRules/<templateName>', methods = ['GET', 'POST'])
 @cross_origin(support_credentials=True)

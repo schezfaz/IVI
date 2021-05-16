@@ -91,7 +91,6 @@ function DropzoneComponentAdmin(props) {
     alert("call function to parse and store brandguideline");
     ServiceCall.addBrandGuideline(files).then((response)=>{
       console.log(response.data)
-      alert(response.data)
     })
   }
 
