@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
@@ -13,9 +13,57 @@ import DropzoneComponentAdmin from '../DropComponentAdmin/DropComponentAdmin';
 import '../../App.css';
 import TextField from '@material-ui/core/TextField';
 import Link from '@material-ui/core/Link';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 
+const onDownload = () => {
+    const link = document.createElement("a");
+    link.download = `download.txt`;
+    link.href = "./download.txt";
+    link.click();
+  };
+  
+const StyledTableCell = withStyles((theme) => ({
+    head: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    body: {
+      fontSize: 14,
+    },
+  }))(TableCell);
+  
+  const StyledTableRow = withStyles((theme) => ({
+    root: {
+      '&:nth-of-type(odd)': {
+        backgroundColor: theme.palette.action.hover,
+      },
+    },
+  }))(TableRow);
+  
+  function createData(title, guideline) {
+    return { title, guideline};
+  }
+  
+  const rows = [
+    createData('RISK GUIDELINES', ''),
+    createData('IT GUIDELINES', ''),
+    createData('AUDIT GUIDELINES', ''),
+    createData('COMPLIANCE GUIDELINES', '')
+  ];
+  
+  const useStyles = makeStyles({
+    table: {
+      minWidth: 500,
+    },
+  });
 
 function AdminModule() {
+    const classes = useStyles(); 
     return (
         <React.Fragment>
             <CssBaseline />
@@ -31,7 +79,34 @@ function AdminModule() {
 
             <Paper>
                 <DropzoneComponentAdmin />
-            </Paper>     
+            </Paper>    
+
+            <br></br>
+
+            <TableContainer component={Paper} style={{"width" : "40%", "marginLeft" : "30%"}}>
+      <Table className={classes.table}  aria-label="customized table">
+        <TableHead>
+          <TableRow>
+            <StyledTableCell>GUIDELINE</StyledTableCell>
+            <StyledTableCell >VIEW/DOWNLOAD</StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map((row) => (
+            <StyledTableRow key={row.title}>
+              <StyledTableCell component="th" scope="row">
+                {row.title}
+              </StyledTableCell>
+              <StyledTableCell ><Button onClick={onDownload} variant="contained" style={{backgroundColor:"#ffe600"}}>
+      Download
+    </Button></StyledTableCell>
+            </StyledTableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+
+           
     </React.Fragment> 
   )
 }
