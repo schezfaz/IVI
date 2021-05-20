@@ -26,6 +26,13 @@ const onDownload = () => {
     link.href = "./download.txt";
     link.click();
   };
+
+  const onView= () => {
+    const link = document.createElement("a");
+    link.download = `download.txt`;
+    link.href = "./download.txt";
+    link.click();
+  };
   
 const StyledTableCell = withStyles((theme) => ({
     head: {
@@ -97,9 +104,16 @@ function AdminModule() {
               <StyledTableCell component="th" scope="row">
                 {row.title}
               </StyledTableCell>
-              <StyledTableCell ><Button onClick={onDownload} variant="contained" style={{backgroundColor:"#ffe600"}}>
-      Download
-    </Button></StyledTableCell>
+              <StyledTableCell >
+              <Button onClick={onView} variant="contained" style={{backgroundColor:"#ffe600"}}>
+                View
+              </Button>
+              &nbsp;&nbsp;&nbsp;
+                <Button onClick={onDownload} variant="contained" style={{backgroundColor:"#ffe600"}}>
+                  Download
+                </Button>
+                
+                </StyledTableCell>
             </StyledTableRow>
           ))}
         </TableBody>

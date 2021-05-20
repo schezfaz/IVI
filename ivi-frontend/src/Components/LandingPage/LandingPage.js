@@ -97,9 +97,11 @@ export default function LandingPage() {
 
   const [brandGuideline, setBrandGuideline] = React.useState('');
   const [open, setOpen] = React.useState(false);
+  const [viewOP, setViewOP] = React.useState(false);
 
   const handleChange = (event) => {
     setBrandGuideline(event.target.value);
+    localStorage.setItem("brandGuideline", event.target.value);
   };
 
   const handleClose = () => {
@@ -166,10 +168,6 @@ export default function LandingPage() {
               </div>
                 <DropzoneComponent />
               </Paper>     
-                {/* <br/><br/>
-              <Button variant="contained" style={{backgroundColor:"#ffe600"}}>
-                Apply IVI Now
-              </Button> */}
               <br/><br/> <br/><br/>
                 <TextField
                   id="outlined-basic"
@@ -182,12 +180,17 @@ export default function LandingPage() {
                 <Button variant="contained" style={{backgroundColor:"#ffe600"}}>
                   Apply IVI on SharePoint Location Now
                 </Button>
-                <br/><br/><br/><br/><br/><br/><br/><br/>
+                <br/><br/><br/><br/>
+                {viewOP && <Button variant="contained" style={{backgroundColor:"#797878",color:'white'}}>
+                    View Output
+                  </Button>}
+                <br/><br/><br/><br/>
                 <Link href="#/myspace" variant="body2">
                   <Button variant="contained" style={{backgroundColor:"#797878",color:'white'}}>
                     My Space
                   </Button>
                 </Link>
+                <br/><br/><br/>
             </Grid>
 
            

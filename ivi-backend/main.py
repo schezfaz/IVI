@@ -41,9 +41,10 @@ def submitFiles():
         file = request.files['file']
         filename = file.filename
         print(filename)
+        print(request.form['brandGuideline'])
         file.save('./state/'+filename)
         # Call Apply Rules Func
-        outfname = applyRules()
+        outfname = applyRules(request.form['brandGuideline'])
     # return "Send Annoted PDF File"
     return outfname
 

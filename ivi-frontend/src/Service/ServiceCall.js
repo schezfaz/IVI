@@ -2,11 +2,11 @@ import http from './http-common-servicecall'
 
 class ServiceCall{
     
-    submitFile(files){
-        const formData = new FormData();
-        console.log(files[0])
-        formData.append("file", files[0]);
-        formData.append("filename", files[0].name);
+    submitFile(formData){
+        // const formData = new FormData();
+        // console.log(files[0])
+        // formData.append("file", files[0]);
+        // formData.append("filename", files[0].name);
         return http.post("/submitFile", formData, {
             headers: {
               'Content-Type': 'multipart/form-data'

@@ -88,16 +88,12 @@ function DropzoneComponent(props) {
   // }
 
   function submitFiles(){
-    // console.log(files)
-    ServiceCall.submitFile(files).then((response)=>{
+    const formData = new FormData()
+    formData.append("file", files[0]);
+    formData.append("filename", files[0].name);
+    formData.append("brandGuideline", localStorage.getItem("brandGuideline"));
+    ServiceCall.submitFile(formData).then((response)=>{
       console.log(response.data)
-    //   const blob = new Blob(
-    //     [response.data], 
-    //     {type: 'application/pdf'}
-    //  );
-    //  const fileURL = URL.createObjectURL(blob)
-    //  setReturnFile(fileURL)
-    //   //console.log(URL.createObjectURL(response.data))
       alert(response.data)
     })
   }
