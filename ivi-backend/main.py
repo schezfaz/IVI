@@ -114,16 +114,50 @@ def extractData(doc, pdfDoc, template_data):
           blocks = page.getText("dict")["blocks"]
           max_size = 0
           min_cordinate = 999
+          prev_bullet_level = 0
+          prev_bullet_position = 0
           for b in blocks:  # iterate through the text blocks
               if b['type'] == 0:  # block contains text
-                  for l in b["lines"]:  # iterate through the text lines
+                  prev_bullet = False 
+                  for l in b["lines"]: # iterate through the text lines 
                       for s in l["spans"]:  # iterate through the text spans
                           filter = {'text':s['text'], 'size':s['size'], 'font':s['font'], 'color':hex(s['color']), 'bbox':s['bbox'], 'origin':s['origin'],'flags':s['flags']}
                           styles.append(filter)
                           # print("<-----",s,"---->")
-                          font_rules = template_data[Constants.TEXT_FONT]["Rules"]
-                          bullet_rules = template_data[Constants.BULLET]["Rules"]
-                          boilerplate_rules = template_data[Constants.BOILERPLATE_TEXT]["Rules"]
+                          # fetching para font rules and applied
+                          font_rules = template_data[Constants.TEXT_FONT][Constants.RULES]
+                          bullet_rules = template_data[Constants.BULLET][Constants.RULES]
+                          boilerplate_rules = template_data[Constants.BOILERPLATE_TEXT][Constants.RULES]
+                          
+                          if filter['text'] in Constants.BULLET_SAMPLE:
+                            prev_bullet = True 
+                            if not prev_bullet_position:
+                              prev_bullet_position = filter['origin'][0]
+                              prev_bullet_level = 1
+                            else:
+                              if (prev_bullet_position != filter['origin'][0]):
+                                prev_bullet_level = prev_bullet_level + 1
+                              else:
+                                prev_bullet_level = 1
+                            print("BULLET",filter['text'], prev_bullet_level)
+                            continue
+                          
+                          if prev_bullet:
+                            bullet_error = ''
+                            bullet_rule = bullet_rules['Level '+str(prev_bullet_level)].strip().split(' ')
+                            if bullet_rule[0].strip().lower() not in filter['font'].lower():
+                              bullet_error += "Font style should be "+bullet_rule[0]+", current style:"+filter['font']
+                              bullet_error += '\n'
+                            if(int(bullet_rule[1].strip()) != round(filter['size'])):
+                              bullet_error += "Font size should be "+bullet_rule[1].strip()+", current size:"+str(round(filter['size']))
+                            
+                            if bullet_error != '':
+                              addStickyNote(page_annot, pdfDoc, filter['bbox'], "Bullet", bullet_error)
+                            continue
+
+
+                          if font_rules[Constants.PARAGRAPH_FONT_STYLE].strip().lower() not in filter['font'].lower():
+                            addStickyNote(page_annot, pdfDoc, filter['bbox'],"Text Font", "Font style should be "+font_rules[Constants.PARAGRAPH_FONT_STYLE]+", current style:"+filter['font']) 
 
                           if(max_size < s['size']):
                             max_size = s['size']
@@ -133,17 +167,23 @@ def extractData(doc, pdfDoc, template_data):
                             min_cordinate = s['bbox'][1]
                             min_text_coordinatee = filter
                           
-                          # addStickyNote(page_annot, pdfDoc, s['bbox'], '','')
+          # fetching heading rules and applied
+          error = ''
+          heading_rules = template_data[Constants.STANDARD_PAGE_HEADING][Constants.RULES]
+          if(int(heading_rules["Font Size"].strip().split(' ')[0]) != round(max_text_size['size'])):
+            error += "Font size should be "+heading_rules["Font Size"].strip().split(' ')[0]+", current size:"+str(round(max_text_size['size']))
+            error += "\n"
+          if heading_rules["Font style"].strip().lower() not in max_text_size['font'].lower():
+            error += "Font style should be "+heading_rules["Font style"]+", current style:"+max_text_size['font']
+            
+          if error != '':
+            addStickyNote(page_annot, pdfDoc, max_text_size['bbox'], "Heading", error)
 
-          heading_rules = template_data[Constants.STANDARD_PAGE_HEADING]["Rules"]
-          if(heading_rules["Font Size"].strip().split(' ')[0] != round(max_text_size['size'])):
-            addStickyNote(page_annot, pdfDoc, max_text_size['bbox'],"Heading", "Font size should be "+heading_rules["Font Size"].strip().split(' ')[0]+", current size:"+str(round(max_text_size['size']))) 
-
+          # checking heading with a. Max text size b. Top most coordinate on the page
           titles_size.append(max_text_size)
-          print("Title on Size",max_text_size)
-          
+          #print("Title on Size",max_text_size)
           titles_coordinates.append(min_text_coordinatee)
-          print("Title on Coordinate",min_text_coordinatee)
+          #print("Title on Coordinate",min_text_coordinatee)
 
     outfname =  "../output/new_annot_test_api.pdf"
     pdfDoc.Save(outfname, SDFDoc.e_linearized)
@@ -154,7 +194,8 @@ def extractData(doc, pdfDoc, template_data):
 def addStickyNote(page, doc, pos, element, error):
   # Create the sticky note (Text annotation)
   # print('position',pos,int(pos[1]))
-  txt = Text.Create( doc.GetSDFDoc(), Rect(pos[2]+5, 535 - pos[1], 1000, 0) )
+  # creating a note using offset
+  txt = Text.Create( doc.GetSDFDoc(), Rect(pos[2]+Constants.X_COORDINATE_OFFSET, Constants.Y_COORDINATE_OFFSET - pos[1], 1000, 0) )
   txt.SetIcon( "UserIcon" )
   txt.SetContents( element+":"+ error)
   txt.SetColor( ColorPt(1,1,0) )
@@ -193,7 +234,7 @@ def saveTemplateToDB(templateName):
           for rule in rules_list:  
             key_val = rule.split(":")
             if(len(key_val) == 2):      
-              rule_dict[key_val[0]] = key_val[1]
+              rule_dict[key_val[0].strip()] = key_val[1].strip()
             
           dict[temp]["Rules"] = rule_dict
 
