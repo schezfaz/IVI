@@ -181,9 +181,7 @@ export default function LandingPage() {
                   Apply IVI on SharePoint Location Now
                 </Button>
                 <br/><br/><br/><br/>
-                {viewOP && <Button variant="contained" style={{backgroundColor:"#797878",color:'white'}}>
-                    View Output
-                  </Button>}
+               
                 <br/><br/><br/><br/>
                 <Link href="#/myspace" variant="body2">
                   <Button variant="contained" style={{backgroundColor:"#797878",color:'white'}}>

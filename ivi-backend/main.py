@@ -1,3 +1,4 @@
+from os import sendfile
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS , cross_origin
 import io
@@ -31,7 +32,7 @@ def hello():
 @app.route('/returnFile', methods = ['GET'])
 @cross_origin(support_credentials=True)
 def returnFile():
-    return send_file('/Users/bhavyameghnani/Desktop/IVI/misc/ivi.pdf')
+    return send_file('../output/output_annoted.pdf')
 
 
 @app.route('/submitFile', methods = ['GET', 'POST'])
@@ -44,7 +45,7 @@ def submitFiles():
         print(request.form['brandGuideline'])
         file.save('./state/'+filename)
         # Call Apply Rules Func
-        outfname = applyRules(request.form['brandGuideline'])
+        outfname = applyRules(request.form['brandGuideline'], filename)
     # return "Send Annoted PDF File"
     return outfname
 
@@ -80,10 +81,9 @@ def extractRules(document):
 
     return rules
 
-@app.route('/applyRules/<templateName>', methods = ['GET', 'POST'])
-@cross_origin(support_credentials=True)
-def applyRules(templateName):
-    document = '../misc/EYResources/Input Sample.pdf'
+def applyRules(templateName, filename):
+    templateName = 'Nomura'
+    document = './state/' + filename
     doc = fitz.open(document)
     pdfDoc = PDFDoc(document)
     template = es.get(index="template", id=templateName)
@@ -96,7 +96,7 @@ def applyRules(templateName):
     # print('Titles for every page')
     # for t in titles:
     #   print(t)
-    return outfname
+    return 'Your file has been analyzed successfully!'
     # return 'Applied rules successfully!'
     # return send_file(outfname)
 
@@ -185,7 +185,7 @@ def extractData(doc, pdfDoc, template_data):
           titles_coordinates.append(min_text_coordinatee)
           #print("Title on Coordinate",min_text_coordinatee)
 
-    outfname =  "../output/new_annot_test_api.pdf"
+    outfname =  "../output/output_annoted.pdf"
     pdfDoc.Save(outfname, SDFDoc.e_linearized)
 
     return styles, titles_size, outfname

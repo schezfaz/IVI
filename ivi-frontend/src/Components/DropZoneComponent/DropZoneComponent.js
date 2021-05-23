@@ -4,6 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ServiceCall from '../../Service/ServiceCall';
 //import { Document, Page } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
 
 const baseStyle = {
   display: 'flex',
@@ -33,9 +34,19 @@ const rejectStyle = {
 
 function DropzoneComponent(props) {
   const [files, setFiles] = useState([]);
+  const [viewOP, setViewOP] = React.useState(false);
   // const [returnFile, setReturnFile] = useState();
   // const [numPages, setNumPages] = useState(null);
   // const [pageNumber, setPageNumber] = useState(1);
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const onDrop = useCallback(acceptedFiles => {
     setFiles(acceptedFiles.map(file => Object.assign(file, {
@@ -87,14 +98,30 @@ function DropzoneComponent(props) {
   //   setNumPages(numPages);
   // }
 
+  const displayOutputFile = (url) => {
+  return (<div>
+    <Document
+      file={{url : url,
+      mimeType : 'application/pdf'}}
+    ></Document></div>);
+  }
+
   function submitFiles(){
     const formData = new FormData()
     formData.append("file", files[0]);
     formData.append("filename", files[0].name);
     formData.append("brandGuideline", localStorage.getItem("brandGuideline"));
     ServiceCall.submitFile(formData).then((response)=>{
-      console.log(response.data)
       alert(response.data)
+      localStorage.setItem('url',response.data)
+      setOpen(true)
+      const blob = new Blob([response], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);   
+      const link = document.createElement('a')
+      link.href = url
+      // link.download = "report.pdf"
+      //  link.click()
+      setViewOP(true)
     })
   }
 
@@ -113,7 +140,19 @@ function DropzoneComponent(props) {
         Apply IVI Now
       </Button>
       <br/><br/>
-
+      {viewOP && 
+      <div>  
+      <Button variant="contained" style={{backgroundColor:"#ffe600"}} 
+      onClick={(e) => {
+        e.preventDefault();
+        window.location.href='http://localhost:5000/returnFile'
+        }}
+      >
+        View Output 
+       </Button>
+      </div>
+}
+        
       {/* {returnFile && <Document
         file={returnFile}
         onLoadSuccess={onDocumentLoadSuccess}
