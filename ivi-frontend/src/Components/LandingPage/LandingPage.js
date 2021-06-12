@@ -19,7 +19,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-
+import InputColor from 'react-input-color';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -98,6 +98,17 @@ export default function LandingPage() {
   const [brandGuideline, setBrandGuideline] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [viewOP, setViewOP] = React.useState(false);
+  const [headingColor, setHeadingColor] = React.useState({});
+  const [headingFontSize, setHeadingFontSize] = React.useState('24');
+  const [bulletFontSize,setBulletFontSize] = React.useState('16');
+  const [headingFontStyle,setHeadingFontStyle]  = React.useState('Arial');
+  const [headingCasing, setHeadingCasing] = React.useState('Sentence Casing');
+  const [bulletFontColour, setBulletFontColour]  = React.useState({});
+  const [bulletBGColour, setBulletBGColour] = React.useState({});
+  const [paraFontColour, setParaFontColour]  = React.useState({});
+  const [paraBGColour, setParaBGColour] = React.useState({});
+  const [paraFontSize, setParaFontSize] = React.useState({});
+  
 
   const handleChange = (event) => {
     setBrandGuideline(event.target.value);
@@ -124,8 +135,8 @@ export default function LandingPage() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <main>
-        {/* Hero unit */}
+      {/* <main>
+       
         <div className={classes.heroContent}>
           <Container maxWidth="lg">
             <Typography component="h1" variant="h4" align="center" color="textPrimary" gutterBottom>
@@ -133,42 +144,125 @@ export default function LandingPage() {
             </Typography>
           </Container>
         </div>
-      </main>
+      </main> */}
       <br/><br/>
 
       <Grid container spacing={3}>
-            <Grid item xs className="ivi-robo">
-              <img src={ivirobo} alt="ivirobo"/>
+            <Grid item xs={2}>
             </Grid>
-            <Grid item xs >
-              <Paper>
-              <div>
-                <Button variant="contained" style={{backgroundColor:"#ffe600"}} onClick={handleOpen}>
-                  Select Brand Guideline
-                </Button>
-                <FormControl className={classes.formControl}>
-                  <InputLabel id="demo-controlled-open-select-label">Brand Guideline</InputLabel>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    open={open}
-                    onClose={handleClose}
-                    onOpen={handleOpen}
-                    value={brandGuideline}
-                    onChange={handleChange}
-                  >
-                    <MenuItem value="">
-                      <em></em>
-                    </MenuItem>
-                    <MenuItem value={"risk"}>RISK</MenuItem>
-                    <MenuItem value={"audit"}>AUDIT</MenuItem>
-                    <MenuItem value={"IT"}>IT</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
+            <Grid item xs={8}>
+
+
+              <Paper  style={{width:"20%;"}}> 
                 <DropzoneComponent />
               </Paper>     
-              <br/><br/> <br/><br/>
+              <br/><br/> 
+
+              <Paper>
+                <h4>Heading Configuration</h4>
+                <Grid container spacing={1}>
+                  <Grid item xs={3}>
+                    <TextField id="outlined-basic" placeholder="24" label="Font Size" variant="outlined" onChange={(e) => setHeadingFontSize(e.target.value)}/>
+                  </Grid>
+
+                  <Grid item xs={3}>
+                      <h3>Font Colour</h3>
+                      <InputColor
+                        initialValue="#2e2e2e"
+                        onChange={setHeadingColor}
+                        placement="right"
+                      />
+                  </Grid>
+
+                  <Grid item xs={3}>
+                    <InputLabel id="headingFontStyleLabel">Font Style</InputLabel>
+                    <Select
+                      labelId="headingFontStyleLabel"
+                      id="headingFontStyle"
+                      value={headingFontStyle}
+                      onChange={(e)=>setHeadingFontStyle(e.target.value)}
+                    >
+                      <MenuItem value={10}>Arial</MenuItem>
+                      <MenuItem value={20}>Times New Roman</MenuItem>
+                      <MenuItem value={30}>Comic Sans</MenuItem>
+                    </Select>
+                  </Grid>
+
+                  <Grid item xs={3}>
+                    <InputLabel id="headingCasingLabel">Casing</InputLabel>
+                      <Select
+                        labelId="headingCasingLabel"
+                        id="headingCasing"
+                        value={headingCasing}
+                        onChange={(e)=>setHeadingCasing(e.target.value)}
+                      >
+                        <MenuItem value={10}>Sentence Case</MenuItem>
+                        <MenuItem value={20}>Camel Case</MenuItem>
+                      </Select>
+                  </Grid>
+
+                </Grid>
+              </Paper>
+              <br/>
+
+              <Paper>
+                <h4>Bullet Point - Configuration</h4>
+                <Grid container spacing={2}>
+                  <Grid item xs={4}>
+                    <TextField id="outlined-basic" placeholder="16" label="Font Size" variant="outlined" onChange={(e) => setBulletFontSize(e.target.value)}/>
+                  </Grid>
+
+                  <Grid item xs={4}>
+                      <h3>Font Colour</h3>
+                        <InputColor
+                          initialValue="#2e2e2e"
+                          onChange={setBulletFontColour}
+                          placement="right"
+                        />
+                  </Grid>
+
+                  <Grid item xs={4}>
+                    <h3>Background Colour</h3>
+                        <InputColor
+                          initialValue="#ffffff"
+                          onChange={setBulletBGColour}
+                          placement="right"
+                        />
+                  </Grid>
+                </Grid>            
+              </Paper>
+              <br/>
+
+              
+              <Paper>
+                <h4>Paragraph - Configuration</h4>
+                <Grid container spacing={2}>
+                  <Grid item xs={4}>
+                    <TextField id="outlined-basic" placeholder="16" label="Font Size" variant="outlined" onChange={(e) => setParaFontSize(e.target.value)} />
+                  </Grid>
+
+                  <Grid item xs={4}>
+                      <h3>Font Colour</h3>
+                        <InputColor
+                          initialValue="#2e2e2e"
+                          onChange={setParaFontColour}
+                          placement="right"
+                        />
+                  </Grid>
+
+                  <Grid item xs={4}>
+                    <h3>Background Colour</h3>
+                        <InputColor
+                          initialValue="#ffffff"
+                          onChange={setParaBGColour}
+                          placement="right"
+                        />
+                  </Grid>
+                </Grid>
+              </Paper>
+              <br/>
+
+              <Paper>
                 <TextField
                   id="outlined-basic"
                   style ={{width: '95%'}} 
@@ -181,13 +275,12 @@ export default function LandingPage() {
                   Apply IVI on SharePoint Location Now
                 </Button>
                 <br/><br/><br/><br/>
-               
-                <br/><br/><br/><br/>
                 <Link href="#/myspace" variant="body2">
                   <Button variant="contained" style={{backgroundColor:"#797878",color:'white'}}>
                     My Space
                   </Button>
                 </Link>
+              </Paper>
                 <br/><br/><br/>
             </Grid>
 
