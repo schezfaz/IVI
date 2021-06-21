@@ -12,6 +12,21 @@ import toast from 'react-hot-toast';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
+import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Slide from '@material-ui/core/Slide';
+import risk from '../../Resources/Images/risk.png'
+import market from '../../Resources/Images/market.png'
+import political from '../../Resources/Images/political.png'
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,6 +67,17 @@ const MySpace = () => {
   const classes = useStyles();
   const { transcript, resetTranscript } = useSpeechRecognition();
   const [notes, setNotes] = React.useState([]);
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
 
 //   const [value, setValue] = useState('');
   const { speak } = useSpeechSynthesis();
@@ -100,6 +126,46 @@ const MySpace = () => {
             <Grid item xs={12} sm={4} md={7} component={Paper} elevation={5} >
               <div className={classes.paper}>
                 <img alt="mind_note" width="60%" height="20%" src="https://www.pocketprep.com/wp-content/uploads/2021/03/Brain-dumps-and-other-test-day-hacks_post-image-full.jpg" />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={top100Films}
+                  getOptionLabel={(option) => option.title}
+                  style={{ width: 300 , height:60}}
+                  renderInput={(params) => <TextField {...params} label="Select Slide Number" variant="outlined" />}
+                />
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    className={classes.submit}
+                    onClick={handleClickOpen}
+                  >
+                    Predict Icon
+                </Button>
+                
+                <br/><br/>
+
+                <Dialog
+                  open={open}
+                  TransitionComponent={Transition}
+                  keepMounted
+                  onClose={handleClose}
+                  aria-labelledby="alert-dialog-slide-title"
+                  aria-describedby="alert-dialog-slide-description"
+                >
+                  <DialogTitle id="alert-dialog-slide-title">Predicted Icons</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText id="alert-dialog-slide-description">
+                      <img alt="risk" src = {risk} style={{height:"100px", width:"100px"}}/>
+                      <img alt="risk" src = {market} style={{height:"100px", width:"100px"}}/>
+                      <img alt="risk" src = {political} style={{height:"100px", width:"100px"}}/>
+                    </DialogContentText>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                      Done
+                    </Button>
+                  </DialogActions>
+                </Dialog>
                 <div>
                   <Button
                     // type="submit"
@@ -181,3 +247,15 @@ const MySpace = () => {
   )
 }
 export default MySpace
+
+const top100Films = [
+  { title: 'Slide 1' },
+  { title: 'Slide 2'},
+  { title: 'Slide 3'},
+  { title: 'Slide 4'},
+  { title: 'Slide 5'},
+  { title: 'Slide 6'},
+  // { title: 'Slide 7'},
+  // { title: 'Slide 8'},
+  // { title: 'Slide 9'},
+]
