@@ -274,12 +274,25 @@ export default function LandingPage() {
                 <Button variant="contained" style={{backgroundColor:"#ffe600"}}>
                   Apply IVI on SharePoint Location Now
                 </Button>
-                <br/><br/><br/><br/>
-                <Link href="#/myspace" variant="body2">
-                  <Button variant="contained" style={{backgroundColor:"#797878",color:'white'}}>
-                    My Space
-                  </Button>
-                </Link>
+              </Paper>
+              <br/><br/> 
+              <Paper>
+              <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <Link href="#/myspace" variant="body2">
+                      <Button variant="contained" style={{backgroundColor:"#797878",color:'white'}}>
+                        My Space
+                      </Button>
+                    </Link>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Link href="#/dashboardurl" variant="body2">
+                      <Button variant="contained" style={{backgroundColor:"#797878",color:'white'}}>
+                        View Analytics Dashboard
+                      </Button>
+                    </Link>
+                  </Grid>
+                </Grid>
               </Paper>
                 <br/><br/><br/>
             </Grid>
