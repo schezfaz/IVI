@@ -23,6 +23,9 @@ import Slide from '@material-ui/core/Slide';
 import risk from '../../Resources/Images/risk.png'
 import market from '../../Resources/Images/market.png'
 import political from '../../Resources/Images/political.png'
+import word_cloud from '../../Resources/Images/word_cloud.png'
+import honda_robot from '../../Resources/Images/honda_robot.png'
+import Predicted_Icons from '../../Resources/Predicted_Icons.zip'
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -69,6 +72,7 @@ const MySpace = () => {
   const [notes, setNotes] = React.useState([]);
 
   const [open, setOpen] = React.useState(false);
+  const [openImage, setOpenImage] = React.useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -76,6 +80,14 @@ const MySpace = () => {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleClickOpenImage = () => {
+    setOpenImage(true);
+  };
+
+  const handleCloseImage = () => {
+    setOpenImage(false);
   };
 
 
@@ -110,6 +122,10 @@ const MySpace = () => {
     });
 };
 
+const downloadFile = () => {
+  window.location.href = "../../Resources/Images/word_cloud.png"
+}
+
 
   if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
     return null
@@ -133,6 +149,8 @@ const MySpace = () => {
                   style={{ width: 300 , height:60}}
                   renderInput={(params) => <TextField {...params} label="Select Slide Number" variant="outlined" />}
                 />
+
+                
                 <Button
                     variant="outlined"
                     color="secondary"
@@ -140,6 +158,15 @@ const MySpace = () => {
                     onClick={handleClickOpen}
                   >
                     Predict Icon
+                </Button>
+                <br/>
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    className={classes.submit}
+                    onClick={handleClickOpenImage}
+                  >
+                    Image Context Analysis
                 </Button>
                 
                 <br/><br/>
@@ -155,9 +182,29 @@ const MySpace = () => {
                   <DialogTitle id="alert-dialog-slide-title">Predicted Icons</DialogTitle>
                   <DialogContent>
                     <DialogContentText id="alert-dialog-slide-description">
+                    <Typography gutterBottom variant="body1" component="h2">
+                      {text_dat}
+                    </Typography>
+                    <br/>
+                    <center>
+                    <img alt="word_cloud" src = {word_cloud} style={{height:"250px", width:"450px"}}/>
+                    <br/>
+                    <p><b>Risk, Market, Political</b></p>
                       <img alt="risk" src = {risk} style={{height:"100px", width:"100px"}}/>
-                      <img alt="risk" src = {market} style={{height:"100px", width:"100px"}}/>
-                      <img alt="risk" src = {political} style={{height:"100px", width:"100px"}}/>
+                      <img alt="market" src = {market} style={{height:"100px", width:"100px"}}/>
+                      <img alt="political" src = {political} style={{height:"100px", width:"100px"}}/>
+                      <br/>
+                      <a href={Predicted_Icons} download="Predicted_Icons" target='_blank'>
+                      <Button
+                          variant="outlined"
+                          color="secondary"
+                          className={classes.submit}
+                          // onClick={()=> downloadFile()}
+                        >
+                          Download Icons
+                      </Button>
+                      </a>
+                    </center>
                     </DialogContentText>
                   </DialogContent>
                   <DialogActions>
@@ -166,6 +213,46 @@ const MySpace = () => {
                     </Button>
                   </DialogActions>
                 </Dialog>
+
+
+
+
+                <Dialog
+                  open={openImage}
+                  TransitionComponent={Transition}
+                  keepMounted
+                  onClose={handleCloseImage}
+                  aria-labelledby="alert-dialog-slide-title"
+                  aria-describedby="alert-dialog-slide-description"
+                >
+                  <DialogTitle id="alert-dialog-slide-title">Deep Learning based Image Context Analysis </DialogTitle>
+                  <DialogContent>
+                    <DialogContentText id="alert-dialog-slide-description">
+                    
+                   
+                    <center>
+                    <img alt="word_cloud" src = {honda_robot} style={{height:"450px", width:"400px"}}/>
+                    <Typography gutterBottom variant="body1" component="h2">
+                      <b>Text Capture from Image:</b> <i>Honda Robots are coming soon</i>
+                    </Typography>
+                    <Typography gutterBottom variant="body1" component="h2">
+                      <b>Image Caption Generator:</b> <i>{text_dat_image}</i>
+                    </Typography>
+
+                    <Typography gutterBottom variant="body1" component="h2">
+                      <b>Similarity Score - 60%</b>
+                    </Typography>
+                    
+                    </center>
+                    </DialogContentText>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseImage} color="primary">
+                      Done
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+
                 <div>
                   <Button
                     // type="submit"
@@ -259,3 +346,6 @@ const top100Films = [
   // { title: 'Slide 8'},
   // { title: 'Slide 9'},
 ]
+
+const text_dat = "Risk is a much riskier proposition than it used to be. New risks emerge every day as markets get desrupted, political instability interrupts supply chains and new technology pushes boundaries across the risk landscape. Yet, while many organisations see risk as a negative, good risk management can actually help companies go faster"
+const text_dat_image = "A white robot on a table"
