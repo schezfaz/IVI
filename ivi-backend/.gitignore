@@ -19,3 +19,6 @@ _mailinglist
 .idea/
 docs/_build/
 .vscode
+
+#config credentials
+Config.py
