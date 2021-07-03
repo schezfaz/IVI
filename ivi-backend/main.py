@@ -11,6 +11,7 @@ import pandas
 import Constants
 import Config
 import xlrd
+import boilerplate
 
 es = Elasticsearch(
     cloud_id=Config.CLOUD_ID,
@@ -82,14 +83,16 @@ def extractRules(document):
     return rules
 
 def applyRules(templateName, filename):
+    # using Nomura for demo purpose
     templateName = 'Nomura'
     document = './state/' + filename
     doc = fitz.open(document)
     pdfDoc = PDFDoc(document)
     template = es.get(index="template", id=templateName)
+    template_boilerplate = es.get(index="boilerplate", id=templateName+'_boilerplate')
     template_data = template["_source"][templateName]
-
-    styles, titles, outfname = extractData(doc, pdfDoc, template_data)
+    template_boilerplate_data = template_boilerplate["_source"][templateName]
+    styles, titles, outfname = extractData(doc, pdfDoc, template_data, template_boilerplate_data)
     # for s in styles:
     #   print(s)
 
@@ -101,7 +104,7 @@ def applyRules(templateName, filename):
     # return send_file(outfname)
 
 
-def extractData(doc, pdfDoc, template_data):
+def extractData(doc, pdfDoc, template_data, template_boilerplate_data):
     styles = []
     titles_size = []
     titles_coordinates = []
@@ -185,6 +188,7 @@ def extractData(doc, pdfDoc, template_data):
           titles_coordinates.append(min_text_coordinatee)
           #print("Title on Coordinate",min_text_coordinatee)
 
+    boilerplate.checkBoilerPlate(doc, pdfDoc, template_boilerplate_data)
     outfname =  "../output/output_annoted.pdf"
     pdfDoc.Save(outfname, SDFDoc.e_linearized)
 
@@ -253,6 +257,17 @@ def saveTemplateToDB(templateName):
   es.index(index="template", body=template_dict,id=templateName)
   return json.dumps(template_dict,indent=4)
 
-
+@app.route('/addBoilerPlate/<templateName>', methods = ['GET', 'POST'])
+@cross_origin(support_credentials=True)
+def saveBoilerPlateToDB(templateName):
+  blockToText = {}
+  boilerPlateText = [x.strip() for x in open('./boilerplate/boilerplate.txt').readlines()]
+  for ind,text in  enumerate(boilerPlateText):
+    blockToText[ind+1] = text
+  
+  temp = {}
+  temp[templateName]=blockToText
+  es.index(index="boilerplate", body=temp,id=templateName+'_boilerplate')
+  return json.dumps(temp,indent=4)
 
 app.run(port=5000, debug=True)
