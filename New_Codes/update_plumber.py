@@ -16,6 +16,7 @@ es = Elasticsearch(
     http_auth=(Config.USERNAME, Config.PASSWORD),
 ) 
 a = PdfAnnotator('Input Sample.pdf')
+result_annotation = {}
 
 def extractData(pdf_file):
     templateName = "Nomura"
@@ -24,6 +25,9 @@ def extractData(pdf_file):
     template_data = template["_source"][templateName]
     template_boilerplate_data = template_boilerplate["_source"][templateName]
     extract_character_characteristics(pdf_file, template_data, template_boilerplate_data)
+    # print(result_annotation)
+    es.index(index="annotation", body=result_annotation,id="Demo")
+
     a.write('b.pdf') 
     return 
 
@@ -91,7 +95,7 @@ def extract_character_characteristics(pdf_file, template_data, template_boilerpl
                                         print("ERRROR",bullet_error)
                                     # addStickyNote(page_annot, pdfDoc, filter['bbox'], "Bullet", bullet_error)
                                         annotation(text_line.bbox[0], text_line.bbox[1], text_line.bbox[2], text_line.bbox[3], "Bullet", bullet_error , page_counter)
-
+                                    prev_bullet = False
                                     continue
 
 
@@ -154,6 +158,19 @@ def annotation(x1, y1, x2, y2, element, error, pageNo):
             content=element + " : "+ error,
         ),
     )
+    annotation_parameters = {}
+    annotation_parameters["X1"] = str(x1)
+    annotation_parameters["X2"] = str(x2)
+    annotation_parameters["Y1"] = str(y1)
+    annotation_parameters["Y2"] = str(y2)
+    annotation_parameters["Element"] = element
+    annotation_parameters["Error"] = error
+    annotation_parameters_list = [annotation_parameters]
+    if pageNo not in result_annotation.keys():
+        result_annotation[pageNo] = annotation_parameters_list
+    else:
+        result_annotation[pageNo].extend(annotation_parameters_list)
+
     
 with open('Input Sample.pdf', 'rb') as scr_file:
     extractData(scr_file)
