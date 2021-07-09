@@ -41,9 +41,12 @@ def extract_character_characteristics(pdf_file, template_data, template_boilerpl
         number_of_pages -= 1
         page_counter += 1
         max_size = 10
+        prev_bullet_level = 0
+        prev_bullet_position = 0
         for element in page_layout:
             if isinstance(element, LTTextContainer):
                 for text_line in element:
+                    prev_bullet = False
                     # if isinstance(text_line, LTTextLine):
                     #     print("%6d, %6d, %s" % (text_line.bbox[0], text_line.bbox[1], text_line.get_text().replace('\n', '_')))
                     for character in text_line:
@@ -59,6 +62,38 @@ def extract_character_characteristics(pdf_file, template_data, template_boilerpl
                                     fontname_error = "Text Font Font style should be "+font_rules[Constants.PARAGRAPH_FONT_STYLE]+", current style:"+character.fontname
                                     flag_char_disperancies = 1
                                     fontname_line = text_line
+
+                                if character.get_text() in Constants.BULLET_SAMPLE:
+                                    prev_bullet = True 
+                                    if not prev_bullet_position:
+                                        prev_bullet_position = text_line.bbox[0]
+                                        prev_bullet_level = 1
+                                    else:
+                                        if (prev_bullet_position != text_line.bbox[0]):
+                                            prev_bullet_level = prev_bullet_level + 1
+                                        else:
+                                            prev_bullet_level = 1
+                                    print("BULLET",character.get_text(), prev_bullet_level)
+                                    continue
+                                
+                                
+                                if prev_bullet:
+                                    bullet_error = ''
+                                    bullet_rule = bullet_rules['Level '+str(prev_bullet_level)].strip().split(' ')
+                                    
+                                    if bullet_rule[0].strip().lower() not in character.fontname.lower():
+                                        bullet_error += "Font style should be "+bullet_rule[0]+", current style:"+character.fontname
+                                        bullet_error += '\n'
+                                    if(int(bullet_rule[1].strip()) != round(character.size)):
+                                        bullet_error += "Font size should be "+bullet_rule[1].strip()+", current size:"+str(round(character.size))
+                                    
+                                    if bullet_error != '':
+                                        print("ERRROR",bullet_error)
+                                    # addStickyNote(page_annot, pdfDoc, filter['bbox'], "Bullet", bullet_error)
+                                        annotation(text_line.bbox[0], text_line.bbox[1], text_line.bbox[2], text_line.bbox[3], "Bullet", bullet_error , page_counter)
+
+                                    continue
+
 
                                 if(max_size < int(character.size)):
                                     max_size = int(character.size)
