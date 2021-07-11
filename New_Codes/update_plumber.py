@@ -17,6 +17,7 @@ es = Elasticsearch(
 ) 
 a = PdfAnnotator('Input Sample.pdf')
 result_annotation = {}
+blockToText = {}
 
 def extractData(pdf_file):
     templateName = "Nomura"
@@ -24,6 +25,13 @@ def extractData(pdf_file):
     template_boilerplate = es.get(index="boilerplate", id=templateName+'_boilerplate')
     template_data = template["_source"][templateName]
     template_boilerplate_data = template_boilerplate["_source"][templateName]
+    boilerPlateText = [x.strip() for x in open('./boilerplate/boilerplate.txt').readlines()]
+    for ind,text in  enumerate(boilerPlateText):
+        blockToText[ind] = text
+        
+        
+  
+    
     extract_character_characteristics(pdf_file, template_data, template_boilerplate_data)
     # print(result_annotation)
     es.index(index="annotation", body=result_annotation,id="Demo")
@@ -37,24 +45,31 @@ def extract_character_characteristics(pdf_file, template_data, template_boilerpl
     font_rules = template_data[Constants.TEXT_FONT][Constants.RULES]
     bullet_rules = template_data[Constants.BULLET][Constants.RULES]
     boilerplate_rules = template_data[Constants.BOILERPLATE_TEXT][Constants.RULES]
-    
     page_counter = -1
     number_of_pages = len(list(extract_pages(pdf_file)))
     for page_layout in extract_pages(pdf_file, laparams=LAParams()):
-        print(f'Processing Page: {number_of_pages}')
-        number_of_pages -= 1
+        print(f'Processing Page: {page_counter+1}')
+        #number_of_pages -= 1
         page_counter += 1
         max_size = 10
         prev_bullet_level = 0
         prev_bullet_position = 0
+        boilerplate_text_count = 0
         for element in page_layout:
             if isinstance(element, LTTextContainer):
                 for text_line in element:
                     prev_bullet = False
+                    if(page_counter == number_of_pages-1): 
+                        if boilerplate_text_count in blockToText.keys():
+                            if text_line.get_text().lower().strip() != blockToText[boilerplate_text_count].lower().strip():
+                                annotation(text_line.bbox[0], text_line.bbox[1], text_line.bbox[2], text_line.bbox[3], "BoilerPlate", "not matching" , page_counter)  
+                            boilerplate_text_count += 1
+                    
+                        
                     # if isinstance(text_line, LTTextLine):
                     #     print("%6d, %6d, %s" % (text_line.bbox[0], text_line.bbox[1], text_line.get_text().replace('\n', '_')))
-                    for character in text_line:
-                        if isinstance(character, LTChar):
+                    for character in text_line :
+                        if isinstance(character, LTChar) and page_counter != number_of_pages-1:
                             if character.get_text() != ' ':
                                 # print(f"Character: {character.get_text()}")
                                 # print(f"Font Name: {character.fontname}")
@@ -109,7 +124,7 @@ def extract_character_characteristics(pdf_file, template_data, template_boilerpl
                                     # print(type(character.size))
                                     header_font = character.fontname
                                     header_text_line = text_line
-                                    
+
                 error = ""                        
                 heading_rules = template_data[Constants.STANDARD_PAGE_HEADING][Constants.RULES]
                 if(int(heading_rules["Font Size"].strip().split(' ')[0]) != round(max_size)):
@@ -118,15 +133,17 @@ def extract_character_characteristics(pdf_file, template_data, template_boilerpl
                 if heading_rules["Font style"].strip().lower() not in header_font.lower():
                     error += "Font style should be "+heading_rules["Font style"]+", current style:"+header_font
 
-        print("---")
+
+        print("------------")
+        if page_counter != number_of_pages-1:
+            if error != '':
+                annotation(header_text_line.bbox[0], header_text_line.bbox[1], header_text_line.bbox[2], header_text_line.bbox[3], "Heading", error , page_counter)
+            # print(line.bbox[0])
+            if(flag_char_disperancies == 1):
+                flag_char_disperancies = 0
+                annotation(fontname_line.bbox[0], fontname_line.bbox[1], fontname_line.bbox[2], fontname_line.bbox[3], "Fontname", fontname_error , page_counter)
             
-        if error != '':
-            annotation(header_text_line.bbox[0], header_text_line.bbox[1], header_text_line.bbox[2], header_text_line.bbox[3], "Heading", error , page_counter)
-        # print(line.bbox[0])
-        if(flag_char_disperancies == 1):
-            flag_char_disperancies = 0
-            # print("darshan")
-            annotation(fontname_line.bbox[0], fontname_line.bbox[1], fontname_line.bbox[2], fontname_line.bbox[3], "Fontname", fontname_error , page_counter)
+        
 
 
 def extract_character_colors(pdf_file):
@@ -146,11 +163,11 @@ def annotation(x1, y1, x2, y2, element, error, pageNo):
     a.add_annotation(
         'square',
         Location(x1=x1, y1=y1, x2=x2, y2=y2, page=pageNo),
-        Appearance(stroke_color=(1, 0, 0), stroke_width=2),
+        Appearance(stroke_color=(1, 0, 0), stroke_width=1),
     )
     a.add_annotation(
         'text',
-        Location(x1=x1, y1=y1, x2=x2, y2=y2, page=pageNo),
+        Location(x1=x1, y1=y1+12, x2=x2, y2=y2+15, page=pageNo),
         Appearance(
             fill=[0.4, 0, 0],
             stroke_width=1,
