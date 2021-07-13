@@ -50,13 +50,13 @@ CORS(app, support_credentials=True)
 def hello():
     return "Welcome to IVI by Team BaScheD!"
 
-
+# return the processed file
 @app.route('/returnFile', methods = ['GET'])
 @cross_origin(support_credentials=True)
 def returnFile():
     return send_file('output_annoted.pdf')
 
-
+# Analyse file
 @app.route('/submitFile', methods = ['GET', 'POST'])
 @cross_origin(support_credentials=True)
 def submitFiles():
@@ -131,6 +131,7 @@ def extract_character_characteristics(a, pdf_file, template_data, template_boile
     boilerplate_rules = template_data[Constants.BOILERPLATE_TEXT][Constants.RULES]
     page_counter = -1
     number_of_pages = len(list(extract_pages(pdf_file)))
+    # iterating over pages in teh pdf
     for page_layout in extract_pages(pdf_file, laparams=LAParams()):
         print(f'Processing Page: {page_counter+1}')
         #number_of_pages -= 1
@@ -140,15 +141,16 @@ def extract_character_characteristics(a, pdf_file, template_data, template_boile
         prev_bullet_position = 0
         boilerplate_text_count = 0
         for element in page_layout:
+            #checking if its a textbox
             if isinstance(element, LTTextContainer):
                 for text_line in element:
                     prev_bullet = False
+                    #For last slide for boilerplate check
                     if(page_counter == number_of_pages-1): 
                         if boilerplate_text_count in blockToText.keys():
                             if text_line.get_text().lower().strip() != blockToText[boilerplate_text_count].lower().strip():
                                 annotation(a, pdf_file, text_line.bbox[0], text_line.bbox[1], text_line.bbox[2], text_line.bbox[3], "BoilerPlate", "not matching" , page_counter)  
                             boilerplate_text_count += 1
-                    
                         
                     # if isinstance(text_line, LTTextLine):
                     #     print("%6d, %6d, %s" % (text_line.bbox[0], text_line.bbox[1], text_line.get_text().replace('\n', '_')))
@@ -160,12 +162,14 @@ def extract_character_characteristics(a, pdf_file, template_data, template_boile
                                 # print(f"Font Size: {character.size}")
                                 # print('\n')
                                 # print(font_rules[Constants.PARAGRAPH_FONT_STYLE])
+                                # checking font style 
                                 if font_rules[Constants.PARAGRAPH_FONT_STYLE].strip().lower() not in character.fontname.lower():
                                     # print("Text Font Font style should be "+font_rules[Constants.PARAGRAPH_FONT_STYLE]+", current style:"+character.fontname)
                                     fontname_error = "Text Font Font style should be "+font_rules[Constants.PARAGRAPH_FONT_STYLE]+", current style:"+character.fontname
                                     flag_char_disperancies = 1
                                     fontname_line = text_line
 
+                                #checking bullet indentation
                                 if character.get_text() in Constants.BULLET_SAMPLE:
                                     prev_bullet = True 
                                     if not prev_bullet_position:
@@ -197,7 +201,7 @@ def extract_character_characteristics(a, pdf_file, template_data, template_boile
                                     prev_bullet = False
                                     continue
 
-
+                                # determining header text
                                 if(max_size < int(character.size)):
                                     max_size = int(character.size)
                                     # max_text_size = filter
@@ -209,6 +213,7 @@ def extract_character_characteristics(a, pdf_file, template_data, template_boile
                                     header_font = character.fontname
                                     header_text_line = text_line
 
+                # checking header font rules
                 error = ""                        
                 heading_rules = template_data[Constants.STANDARD_PAGE_HEADING][Constants.RULES]
                 if(int(heading_rules["Font Size"].strip().split(' ')[0]) != round(max_size)):
