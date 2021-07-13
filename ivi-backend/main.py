@@ -3,23 +3,21 @@ from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS , cross_origin
 import io
 from operator import itemgetter
-from PDFNetPython3 import PDFDoc, Text, Rect, SDFDoc, ColorPt
-import fitz
+# from PDFNetPython3 import PDFDoc, Text, Rect, SDFDoc, ColorPt
 from elasticsearch import Elasticsearch
 import json
 import pandas
 import Constants
 import Config
 import xlrd
-import boilerplate
+# import boilerplate
 from typing import Text
-import pdfplumber
+# import pdfplumber
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer, LTChar, LAParams, LTTextLine
 from elasticsearch import Elasticsearch
 import Config
 import Constants
-from pdfrw import PdfReader
 from pdf_annotate import PdfAnnotator, Location, Appearance, Metadata
 from pdf_annotate.config import constants
 from pdf_annotate.graphics import ContentStream, Font, Save, BeginText, EndText, FillColor, Restore
@@ -31,7 +29,13 @@ es = Elasticsearch(
     ) 
 
 #:chg: global vars
-a = PdfAnnotator('Input Sample.pdf')
+x1 = []
+y1 = []
+x2 = []
+y2 = []
+element = []
+error = []
+pageNo = []
 result_annotation = {}
 blockToText = {}
 
@@ -50,7 +54,7 @@ def hello():
 @app.route('/returnFile', methods = ['GET'])
 @cross_origin(support_credentials=True)
 def returnFile():
-    return send_file('../output/output_annoted.pdf')
+    return send_file('output_annoted.pdf')
 
 
 @app.route('/submitFile', methods = ['GET', 'POST'])
@@ -64,10 +68,11 @@ def submitFiles():
         file.save('./state/'+filename)
         # Call Apply Rules Func
         #outfname = applyRules(request.form['brandGuideline'], filename)
-        extractData(filename) #calling new method:chg
+        
+        extractData('state/'+filename) #calling new method:chg
     # return "Send Annoted PDF File"
     #return outfname
-    return
+    return "Your file has been analyzed successfully!"
 
 @app.route('/addBrandGuideline', methods = ['GET', 'POST'])
 @cross_origin(support_credentials=True)
@@ -101,27 +106,6 @@ def extractRules(document):
 
     return rules
 
-def applyRules(templateName, filename):
-    # using Nomura for demo purpose
-    templateName = 'Nomura'
-    document = './state/' + filename
-    doc = fitz.open(document)
-    pdfDoc = PDFDoc(document)
-    template = es.get(index="template", id=templateName)
-    template_boilerplate = es.get(index="boilerplate", id=templateName+'_boilerplate')
-    template_data = template["_source"][templateName]
-    template_boilerplate_data = template_boilerplate["_source"][templateName]
-    styles, titles, outfname = extractData(doc, pdfDoc, template_data, template_boilerplate_data)
-    # for s in styles:
-    #   print(s)
-
-    # print('Titles for every page')
-    # for t in titles:
-    #   print(t)
-    return 'Your file has been analyzed successfully!'
-    # return 'Applied rules successfully!'
-    # return send_file(outfname)
-
 
 #:chg: adding u_p extractData method
 def extractData(pdf_file):
@@ -133,16 +117,14 @@ def extractData(pdf_file):
     boilerPlateText = [x.strip() for x in open('./boilerplate/boilerplate.txt').readlines()]
     for ind,text in  enumerate(boilerPlateText):
         blockToText[ind] = text  
-    
-    extract_character_characteristics(pdf_file, template_data, template_boilerplate_data)
-    # print(result_annotation)
+    a = PdfAnnotator(pdf_file)
+    extract_character_characteristics(a, pdf_file, template_data, template_boilerplate_data)
+    a.write('output_annoted.pdf') 
     es.index(index="annotation", body=result_annotation,id="Demo")
-
-    a.write('b.pdf') 
     return 
 
 #:chg u_p: extract_character_characteristics
-def extract_character_characteristics(pdf_file, template_data, template_boilerplate_data):
+def extract_character_characteristics(a, pdf_file, template_data, template_boilerplate_data):
     flag_char_disperancies = 0
     font_rules = template_data[Constants.TEXT_FONT][Constants.RULES]
     bullet_rules = template_data[Constants.BULLET][Constants.RULES]
@@ -164,7 +146,7 @@ def extract_character_characteristics(pdf_file, template_data, template_boilerpl
                     if(page_counter == number_of_pages-1): 
                         if boilerplate_text_count in blockToText.keys():
                             if text_line.get_text().lower().strip() != blockToText[boilerplate_text_count].lower().strip():
-                                annotation(text_line.bbox[0], text_line.bbox[1], text_line.bbox[2], text_line.bbox[3], "BoilerPlate", "not matching" , page_counter)  
+                                annotation(a, pdf_file, text_line.bbox[0], text_line.bbox[1], text_line.bbox[2], text_line.bbox[3], "BoilerPlate", "not matching" , page_counter)  
                             boilerplate_text_count += 1
                     
                         
@@ -211,7 +193,7 @@ def extract_character_characteristics(pdf_file, template_data, template_boilerpl
                                     if bullet_error != '':
                                         print("ERRROR",bullet_error)
                                     # addStickyNote(page_annot, pdfDoc, filter['bbox'], "Bullet", bullet_error)
-                                        annotation(text_line.bbox[0], text_line.bbox[1], text_line.bbox[2], text_line.bbox[3], "Bullet", bullet_error , page_counter)
+                                        annotation(a, pdf_file, text_line.bbox[0], text_line.bbox[1], text_line.bbox[2], text_line.bbox[3], "Bullet", bullet_error , page_counter)
                                     prev_bullet = False
                                     continue
 
@@ -239,14 +221,14 @@ def extract_character_characteristics(pdf_file, template_data, template_boilerpl
         print("------------")
         if page_counter != number_of_pages-1:
             if error != '':
-                annotation(header_text_line.bbox[0], header_text_line.bbox[1], header_text_line.bbox[2], header_text_line.bbox[3], "Heading", error , page_counter)
+                annotation(a, pdf_file, header_text_line.bbox[0], header_text_line.bbox[1], header_text_line.bbox[2], header_text_line.bbox[3], "Heading", error , page_counter)
             # print(line.bbox[0])
             if(flag_char_disperancies == 1):
                 flag_char_disperancies = 0
-                annotation(fontname_line.bbox[0], fontname_line.bbox[1], fontname_line.bbox[2], fontname_line.bbox[3], "Fontname", fontname_error , page_counter)
+                annotation(a, pdf_file, fontname_line.bbox[0], fontname_line.bbox[1], fontname_line.bbox[2], fontname_line.bbox[3], "Fontname", fontname_error , page_counter)
 
 #:chg: annotation
-def annotation(x1, y1, x2, y2, element, error, pageNo):
+def annotation(a, pdf_file, x1, y1, x2, y2, element, error, pageNo):
     a.add_annotation(
         'square',
         Location(x1=x1, y1=y1, x2=x2, y2=y2, page=pageNo),
@@ -274,110 +256,7 @@ def annotation(x1, y1, x2, y2, element, error, pageNo):
         result_annotation[pageNo] = annotation_parameters_list
     else:
         result_annotation[pageNo].extend(annotation_parameters_list)
-
-
-#:chg: commenting out exiting extractData method
-# def extractData(doc, pdfDoc, template_data, template_boilerplate_data):
-#     styles = []
-#     titles_size = []
-#     titles_coordinates = []
-#     i=1
-#     for page in doc:
-#         if(len(doc) > 1 and page!=1):
-#           print("Page:",i)
-#           page_annot = pdfDoc.GetPage(i)
-#           i=i+1
-#           blocks = page.getText("dict")["blocks"]
-#           max_size = 0
-#           min_cordinate = 999
-#           prev_bullet_level = 0
-#           prev_bullet_position = 0
-#           for b in blocks:  # iterate through the text blocks
-#               if b['type'] == 0:  # block contains text
-#                   prev_bullet = False 
-#                   for l in b["lines"]: # iterate through the text lines 
-#                       for s in l["spans"]:  # iterate through the text spans
-#                           filter = {'text':s['text'], 'size':s['size'], 'font':s['font'], 'color':hex(s['color']), 'bbox':s['bbox'], 'origin':s['origin'],'flags':s['flags']}
-#                           styles.append(filter)
-#                           # print("<-----",s,"---->")
-#                           # fetching para font rules and applied
-#                           font_rules = template_data[Constants.TEXT_FONT][Constants.RULES]
-#                           bullet_rules = template_data[Constants.BULLET][Constants.RULES]
-#                           boilerplate_rules = template_data[Constants.BOILERPLATE_TEXT][Constants.RULES]
-                          
-#                           if filter['text'] in Constants.BULLET_SAMPLE:
-#                             prev_bullet = True 
-#                             if not prev_bullet_position:
-#                               prev_bullet_position = filter['origin'][0]
-#                               prev_bullet_level = 1
-#                             else:
-#                               if (prev_bullet_position != filter['origin'][0]):
-#                                 prev_bullet_level = prev_bullet_level + 1
-#                               else:
-#                                 prev_bullet_level = 1
-#                             print("BULLET",filter['text'], prev_bullet_level)
-#                             continue
-                          
-#                           if prev_bullet:
-#                             bullet_error = ''
-#                             bullet_rule = bullet_rules['Level '+str(prev_bullet_level)].strip().split(' ')
-#                             if bullet_rule[0].strip().lower() not in filter['font'].lower():
-#                               bullet_error += "Font style should be "+bullet_rule[0]+", current style:"+filter['font']
-#                               bullet_error += '\n'
-#                             if(int(bullet_rule[1].strip()) != round(filter['size'])):
-#                               bullet_error += "Font size should be "+bullet_rule[1].strip()+", current size:"+str(round(filter['size']))
-                            
-#                             if bullet_error != '':
-#                               addStickyNote(page_annot, pdfDoc, filter['bbox'], "Bullet", bullet_error)
-#                             continue
-
-
-#                           if font_rules[Constants.PARAGRAPH_FONT_STYLE].strip().lower() not in filter['font'].lower():
-#                             addStickyNote(page_annot, pdfDoc, filter['bbox'],"Text Font", "Font style should be "+font_rules[Constants.PARAGRAPH_FONT_STYLE]+", current style:"+filter['font']) 
-
-#                           if(max_size < s['size']):
-#                             max_size = s['size']
-#                             max_text_size = filter
-                          
-#                           if(min_cordinate > s['bbox'][1]):
-#                             min_cordinate = s['bbox'][1]
-#                             min_text_coordinatee = filter
-                          
-          # fetching heading rules and applied
-          error = ''
-          heading_rules = template_data[Constants.STANDARD_PAGE_HEADING][Constants.RULES]
-          if(int(heading_rules["Font Size"].strip().split(' ')[0]) != round(max_text_size['size'])):
-            error += "Font size should be "+heading_rules["Font Size"].strip().split(' ')[0]+", current size:"+str(round(max_text_size['size']))
-            error += "\n"
-          if heading_rules["Font style"].strip().lower() not in max_text_size['font'].lower():
-            error += "Font style should be "+heading_rules["Font style"]+", current style:"+max_text_size['font']
-            
-          if error != '':
-            addStickyNote(page_annot, pdfDoc, max_text_size['bbox'], "Heading", error)
-
-          # checking heading with a. Max text size b. Top most coordinate on the page
-          titles_size.append(max_text_size)
-          #print("Title on Size",max_text_size)
-          titles_coordinates.append(min_text_coordinatee)
-          #print("Title on Coordinate",min_text_coordinatee)
-
-    boilerplate.checkBoilerPlate(doc, pdfDoc, template_boilerplate_data)
-    outfname =  "../output/output_annoted.pdf"
-    pdfDoc.Save(outfname, SDFDoc.e_linearized)
-
-    return styles, titles_size, outfname
-
-
-def addStickyNote(page, doc, pos, element, error):
-  # Create the sticky note (Text annotation)
-  # print('position',pos,int(pos[1]))
-  # creating a note using offset
-  txt = Text.Create( doc.GetSDFDoc(), Rect(pos[2]+Constants.X_COORDINATE_OFFSET, Constants.Y_COORDINATE_OFFSET - pos[1], 1000, 0) )
-  txt.SetIcon( "UserIcon" )
-  txt.SetContents( element+":"+ error)
-  txt.SetColor( ColorPt(1,1,0) )
-  txt.RefreshAppearance()
-  page.AnnotPushBack( txt )
+    
 
 
 @app.route('/saveTemplate/<templateName>', methods = ['GET', 'POST'])
